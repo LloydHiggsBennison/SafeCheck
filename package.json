@@ -1,0 +1,10 @@
+{
+  "name": "safe-flame",
+  "version": "1.0.0",
+  "description": "Safe Flame - Mantención Preventiva MVP",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx -y http-server -p 3000"
+  },
+  "dependencies": {}
+}

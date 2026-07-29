@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safe Flame · Mantención Preventiva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#101828;
+  --navy-2:#1b2440;
+  --red:#d81f2a;
+  --red-dark:#a8151e;
+  --red-tint:#fdeceb;
+  --green:#1e8a5f;
+  --green-tint:#e7f5ee;
+  --amber:#b9750a;
+  --amber-tint:#fdf1de;
+  --bg:#f3f4f7;
+  --card:#ffffff;
+  --text:#1b2432;
+  --muted:#6b7280;
+  --border:#e3e5ea;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;line-height:1.5;}
+h1,h2,h3,h4{font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:.2px;margin:0;}
+button{font-family:inherit;cursor:pointer;}
+input,textarea,select{font-family:inherit;font-size:14px;}
+.app{max-width:1080px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;}
+
+/* ---------- Topbar ---------- */
+.topbar{background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:30;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-flame{font-size:22px;}
+.brand-name{font-family:'Oswald';font-weight:700;font-size:17px;letter-spacing:.5px;}
+.brand-sub{font-size:10px;color:#9aa4b8;letter-spacing:1px;text-transform:uppercase;margin-top:-2px;}
+.topbar-condo{margin-left:6px;padding-left:16px;border-left:1px solid #33405e;color:#cfd6e6;font-size:12.5px;}
+.topbar-condo b{color:#fff;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.role-switch{display:flex;background:#1b2440;border-radius:8px;padding:3px;gap:2px;}
+.role-btn{border:none;background:transparent;color:#aab2c5;padding:6px 12px;border-radius:6px;font-size:12.5px;font-weight:600;}
+.role-btn.active{background:var(--red);color:#fff;}
+.bell-wrap{position:relative;}
+.bell{background:#1b2440;border:none;color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;}
+.bell-badge{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:50%;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+.bell-panel{position:absolute;right:0;top:44px;width:320px;background:#fff;color:var(--text);border-radius:12px;box-shadow:0 12px 32px rgba(16,24,40,.25);overflow:hidden;z-index:50;}
+.bell-panel h4{padding:14px 16px 8px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.bell-item{padding:10px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+.bell-item .t{font-weight:600;font-size:13px;}
+.bell-item .d{font-size:12px;color:var(--muted);}
+.bell-chip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+.bell-empty{padding:20px 16px;color:var(--muted);font-size:13px;}
+
+/* ---------- Nav tabs ---------- */
+.nav{display:flex;gap:6px;padding:10px 20px;background:#fff;border-bottom:1px solid var(--border);}
+.nav button{border:none;background:transparent;padding:9px 14px;border-radius:8px;font-weight:600;font-size:13px;color:var(--muted);}
+.nav button.active{background:var(--red-tint);color:var(--red-dark);}
+
+/* ---------- Main ---------- */
+.main{flex:1;padding:22px 20px 60px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;}
+.grid-floors{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:18px;}
+.floor-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:0;overflow:hidden;cursor:pointer;transition:box-shadow .15s, transform .15s;position:relative;}
+.floor-card:hover{box-shadow:0 8px 22px rgba(16,24,40,.10);transform:translateY(-2px);}
+.floor-tag{position:relative;display:inline-flex;align-items:center;padding:9px 16px 9px 24px;background:var(--red);color:#fff;font-family:'Oswald';font-weight:600;font-size:14px;clip-path:polygon(12% 0,100% 0,100% 100%,12% 100%,0 50%);margin:14px 0 0 -4px;}
+.floor-tag::after{content:'';position:absolute;left:13px;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);}
+.floor-body{padding:6px 16px 16px;}
+.status-pill{display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;margin-top:8px;}
+.status-ok{background:var(--green-tint);color:var(--green);}
+.status-obs{background:var(--amber-tint);color:var(--amber);}
+.status-pend{background:#eef0f4;color:var(--muted);}
+.status-report{background:var(--red-tint);color:var(--red-dark);}
+.floor-meta{font-size:11.5px;color:var(--muted);margin-top:6px;}
+.report-dot{position:absolute;top:12px;right:12px;width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 0 3px rgba(216,31,42,.18);}
+
+/* ---------- Buttons ---------- */
+.btn{border:none;border-radius:9px;padding:11px 18px;font-weight:600;font-size:13.5px;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary{background:var(--red);color:#fff;}
+.btn-primary:hover{background:var(--red-dark);}
+.btn-outline{background:#fff;border:1.5px solid var(--border);color:var(--text);}
+.btn-ghost{background:transparent;color:var(--red-dark);}
+.btn-navy{background:var(--navy);color:#fff;}
+.btn-sm{padding:7px 12px;font-size:12.5px;border-radius:7px;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* ---------- Forms ---------- */
+label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px;}
+.field{margin-bottom:16px;}
+input[type=text],input[type=number],textarea,select{width:100%;border:1.5px solid var(--border);border-radius:9px;padding:10px 12px;background:#fbfbfc;}
+textarea{resize:vertical;min-height:64px;}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--red);background:#fff;}
+
+/* ---------- Checklist ---------- */
+.check-item{border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+.check-item h4{font-size:14px;}
+.check-item p{margin:3px 0 10px;color:var(--muted);font-size:12.5px;}
+.radio-row{display:flex;gap:10px;margin-bottom:8px;}
+.radio-opt{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center;font-weight:600;font-size:12.5px;cursor:pointer;color:var(--muted);}
+.radio-opt.sel-ok{background:var(--green-tint);border-color:var(--green);color:var(--green);}
+.radio-opt.sel-bad{background:var(--red-tint);border-color:var(--red);color:var(--red-dark);}
+.photo-box{border:2px dashed var(--border);border-radius:12px;padding:18px;text-align:center;color:var(--muted);}
+.photo-preview{width:100%;border-radius:12px;display:block;margin-bottom:10px;}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 20px;border-radius:10px;font-size:13.5px;font-weight:600;z-index:100;box-shadow:0 10px 30px rgba(0,0,0,.25);}
+
+/* ---------- Modal ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(16,24,40,.5);display:flex;align-items:center;justify-content:center;z-index:80;padding:20px;}
+.modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:440px;max-height:90vh;overflow:auto;}
+
+/* ---------- Tables ---------- */
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;padding:8px 10px;border-bottom:1.5px solid var(--border);}
+td{padding:10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.chip-ok{background:var(--green-tint);color:var(--green);}
+.chip-obs{background:var(--amber-tint);color:var(--amber);}
+.chip-pend{background:var(--red-tint);color:var(--red-dark);}
+.chip-done{background:#eef0f4;color:var(--muted);}
+.thumb{width:44px;height:44px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid var(--border);}
+.tab-row{display:flex;gap:6px;margin-bottom:16px;}
+.subtab{border:1.5px solid var(--border);background:#fff;padding:7px 14px;border-radius:8px;font-weight:600;font-size:12.5px;color:var(--muted);}
+.subtab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.empty{color:var(--muted);text-align:center;padding:30px 0;}
+.doc-card{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.doc-card h4{font-size:14.5px;}
+.doc-card .d{font-size:12px;color:var(--muted);margin-top:3px;}
+.task-row{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+.spinner{border:3px solid var(--border);border-top-color:var(--red);width:26px;height:26px;border-radius:50%;animation:spin .7s linear infinite;margin:40px auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.footer-note{text-align:center;color:var(--muted);font-size:11.5px;padding:20px 0 6px;}
+.link-reset{color:var(--muted);text-decoration:underline;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="app" id="app"><div class="spinner"></div></div>
+
+<script>
+/* ============================ STORAGE HELPERS ============================ */
+/* Uses Claude's shared persistent storage when available (inside claude.ai).
+   Falls back to localStorage automatically when the file is opened on its
+   own (downloaded, self-hosted, etc.) so the app keeps working either way. */
+function hasClaudeStorage(){ return (typeof window.storage !== 'undefined') && window.storage && typeof window.storage.get === 'function'; }
+
+async function sGet(key){
+  try{
+    if(hasClaudeStorage()){
+      const r = await window.storage.get(key, true);
+      return r ? JSON.parse(r.value) : null;
+    }
+    const v = localStorage.getItem('sf_'+key);
+    return v ? JSON.parse(v) : null;
+  }catch(e){ return null; }
+}
+async function sSet(key, val){
+  try{
+    if(hasClaudeStorage()){
+      await window.storage.set(key, JSON.stringify(val), true);
+    }else{
+      localStorage.setItem('sf_'+key, JSON.stringify(val));
+    }
+    return true;
+  }catch(e){ console.error('storage set failed', e); return false; }
+}
+async function sDel(key){
+  try{
+    if(hasClaudeStorage()) await window.storage.delete(key, true);
+    else localStorage.removeItem('sf_'+key);
+  }catch(e){}
+}
+async function sList(prefix){
+  try{
+    if(hasClaudeStorage()){
+      const r = await window.storage.list(prefix, true);
+      return (r && r.keys) ? r.keys : [];
+    }
+    const keys = [];
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(k && k.indexOf('sf_'+prefix)===0) keys.push(k.substring(3));
+    }
+    return keys;
+  }catch(e){ return []; }
+}
+
+/* ============================ APP STATE ============================ */
+const state = {
+  condo:null,
+  role:'inspector',        // inspector | admin
+  view:'dashboard',        // dashboard | checklist | reportes | documentos | tareas
+  currentFloor:null,
+  bellOpen:false,
+  checklists:[],
+  reports:[],
+  tareas:[],
+  docs:{},
+  historySub:'reportes',   // reportes | historial
+  inspectorName:'',
+};
+let draftFoto = null;
+let draftItems = null; // working answers for current checklist
+
+const NFPA_ITEMS = [
+  {id:1,nombre:'Ubicación y acceso',desc:'El extintor está en su lugar designado, visible y de fácil acceso, sin obstrucciones.'},
+  {id:2,nombre:'Indicador de presión',desc:'La aguja del manómetro se encuentra en la zona verde (presión operativa).'},
+  {id:3,nombre:'Condición física',desc:'El extintor no presenta daños físicos, corrosión, abolladuras, fugas ni manipulación indebida.'},
+  {id:4,nombre:'Sello y seguro',desc:'El pasador de seguridad y el sello están presentes e intactos.'},
+  {id:5,nombre:'Manguera y boquilla',desc:'La manguera no presenta grietas ni desgaste. La boquilla está limpia y en buen estado.'},
+  {id:6,nombre:'Etiquetas e instrucciones',desc:'La etiqueta de instrucciones es legible y está orientada hacia el frente.'},
+  {id:7,nombre:'Etiqueta de inspección',desc:'La etiqueta de inspección está presente, actualizada y dentro del mes en curso.'},
+  {id:8,nombre:'Mantenimiento',desc:'El extintor cuenta con mantención vigente realizada por empresa competente (NFPA 10).'},
+];
+
+const DOC_TYPES = [
+  {key:'plan_emergencia', nombre:'Plan de Emergencia'},
+  {key:'capacitacion', nombre:'Registro de Capacitación'},
+  {key:'simulacro', nombre:'Registro de Simulacros'},
+];
+
+function fmtDate(d){ return d.toLocaleDateString('es-CL'); }
+function fmtDateTime(d){ return d.toLocaleDateString('es-CL')+' '+d.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'}); }
+function daysBetween(a,b){ return Math.round((b-a)/86400000); }
+function esc(s){ return (s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* ============================ BOOT ============================ */
+async function boot(){
+  state.condo = await sGet('condominio');
+  if(state.condo){
+    state.tareas = (await sGet('tareas')) || [];
+    await refreshChecklists();
+    await refreshReports();
+    state.docs = {};
+    for(const d of DOC_TYPES){ state.docs[d.key] = await sGet('doc:'+d.key); }
+  }
+  render();
+}
+
+async function refreshChecklists(){
+  const keys = await sList('chk:');
+  const out = [];
+  for(const k of keys){ const v = await sGet(k); if(v) out.push(v); }
+  out.sort((a,b)=> new Date(b.fecha) - new Date(a.fecha));
+  state.checklists = out;
+}
+async function refreshReports(){
+  const keys = await sList('rep:');
+  const out = [];
+  for(const k of keys){ const v = await sGet(k); if(v) out.push(v); }
+  out.sort((a,b)=> new Date(b.fecha) - new Date(a.fecha));
+  state.reports = out;
+}
+
+/* ============================ RENDER ROOT ============================ */
+function render(){
+  const app = document.getElementById('app');
+  if(!state.condo){ app.innerHTML = renderRegistro(); return; }
+  app.innerHTML = renderTopbar() + renderNav() + '<div class="main">' + renderView() + '</div>' + renderFooter();
+}
+
+/* ============================ REGISTRO ============================ */
+function renderRegistro(){
+  return `
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy);padding:20px;">
+    <div class="card" style="max-width:440px;width:100%;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <span class="brand-flame">🔥</span>
+        <div>
+          <div style="font-family:'Oswald';font-weight:700;font-size:19px;color:var(--red-dark);">SAFE FLAME</div>
+          <div style="font-size:10.5px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;">Seguridad contra incendios</div>
+        </div>
+      </div>
+      <h2 style="margin-top:16px;font-size:20px;">Registra tu condominio</h2>
+      <p style="color:var(--muted);margin:6px 0 18px;">No encontramos un condominio inscrito. Completa estos datos para generar el checklist digital por piso, conforme a NFPA 10.</p>
+      <div class="field"><label>Nombre del condominio / edificio</label><input type="text" id="r-nombre" placeholder="Ej: Edificio Los Aromos"></div>
+      <div class="field"><label>Dirección</label><input type="text" id="r-direccion" placeholder="Ej: Av. Providencia 1234, Santiago"></div>
+      <div class="field"><label>Cantidad de pisos</label><input type="number" min="1" max="80" id="r-pisos" placeholder="Ej: 12"></div>
+      <div class="field"><label>Tu nombre (inspector a cargo)</label><input type="text" id="r-inspector" placeholder="Ej: Juan Pérez"></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="crearCondominio()">Crear checklist digital</button>
+      <p class="footer-note">Los datos quedan disponibles para inspectores y administradores del edificio.</p>
+    </div>
+  </div>`;
+}
+
+async function crearCondominio(){
+  const nombre = document.getElementById('r-nombre').value.trim();
+  const direccion = document.getElementById('r-direccion').value.trim();
+  const pisos = parseInt(document.getElementById('r-pisos').value,10);
+  const inspector = document.getElementById('r-inspector').value.trim();
+  if(!nombre || !pisos || pisos<1){ alert('Ingresa al menos el nombre del condominio y la cantidad de pisos.'); return; }
+  const condo = { nombre, direccion, pisos, creado: new Date().toISOString() };
+  const ok = await sSet('condominio', condo);
+  if(!ok){ alert('No se pudo guardar. Intenta nuevamente.'); return; }
+  state.inspectorName = inspector || 'Inspector';
+  // seed default building-wide maintenance tasks so the alert bell has content
+  const today = new Date();
+  const seed = [
+    {id:'t1', nombre:'Inspección de mangueras contra incendio', intervaloDias:180, ultimaFecha: addDays(today,-174).toISOString()},
+    {id:'t2', nombre:'Inspección de señalética de evacuación', intervaloDias:90, ultimaFecha: addDays(today,-85).toISOString()},
+    {id:'t3', nombre:'Mantención anual certificada de extintores', intervaloDias:365, ultimaFecha: addDays(today,-360).toISOString()},
+    {id:'t4', nombre:'Capacitación de uso de extintores al personal', intervaloDias:365, ultimaFecha: addDays(today,-200).toISOString()},
+    {id:'t5', nombre:'Simulacro de evacuación', intervaloDias:180, ultimaFecha: addDays(today,-100).toISOString()},
+  ];
+  await sSet('tareas', seed);
+  state.condo = condo;
+  state.tareas = seed;
+  state.checklists = [];
+  state.reports = [];
+  state.docs = {};
+  render();
+}
+function addDays(d,n){ const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+
+/* ============================ TOPBAR & NAV ============================ */
+function alertList(){
+  const alerts = [];
+  const today = new Date();
+  // building-wide tasks
+  for(const t of state.tareas){
+    const next = addDays(new Date(t.ultimaFecha), t.intervaloDias);
+    const dias = daysBetween(today, next);
+    if(dias <= 7) alerts.push({nombre:t.nombre, dias, fecha:next});
+  }
+  // per-floor monthly extinguisher checklist
+  for(let p=1;p<=state.condo.pisos;p++){
+    const registros = state.checklists.filter(c=>c.piso===p);
+    const last = registros[0] ? new Date(registros[0].fecha) : new Date(state.condo.creado);
+    const next = addDays(last,30);
+    const dias = daysBetween(today,next);
+    if(dias<=7) alerts.push({nombre:'Checklist mensual extintores · Piso '+p, dias, fecha:next});
+  }
+  alerts.sort((a,b)=>a.dias-b.dias);
+  return alerts;
+}
+
+function renderTopbar(){
+  const alerts = alertList();
+  const count = alerts.length;
+  return `
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-flame">🔥</span>
+      <div><div class="brand-name">SAFE FLAME</div><div class="brand-sub">Mantención Preventiva</div></div>
+    </div>
+    <div class="topbar-condo">${esc(state.condo.nombre)} <b>· ${state.condo.pisos} pisos</b></div>
+    <div class="topbar-right">
+      <div class="role-switch">
+        <button class="role-btn ${state.role==='inspector'?'active':''}" onclick="setRole('inspector')">Inspector</button>
+        <button class="role-btn ${state.role==='admin'?'active':''}" onclick="setRole('admin')">Administrador</button>
+      </div>
+      <div class="bell-wrap">
+        <button class="bell" onclick="toggleBell()">🔔${count?`<span class="bell-badge">${count}</span>`:''}</button>
+        ${state.bellOpen ? renderBellPanel(alerts) : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderBellPanel(alerts){
+  return `<div class="bell-panel">
+    <h4>Próximas tareas (7 días)</h4>
+    ${alerts.length===0 ? '<div class="bell-empty">No hay tareas próximas a vencer.</div>' :
+      alerts.map(a=>`
+      <div class="bell-item">
+        <div><div class="t">${esc(a.nombre)}</div><div class="d">Vence: ${fmtDate(a.fecha)}</div></div>
+        <span class="bell-chip" style="background:${a.dias<0?'var(--red-tint)':'var(--amber-tint)'};color:${a.dias<0?'var(--red-dark)':'var(--amber)'};">${a.dias<0? (Math.abs(a.dias)+'d vencida') : (a.dias===0?'Hoy':a.dias+'d')}</span>
+      </div>`).join('')}
+  </div>`;
+}
+
+function toggleBell(){ state.bellOpen = !state.bellOpen; render(); }
+function setRole(r){ state.role=r; state.view='dashboard'; state.bellOpen=false; render(); }
+
+function renderNav(){
+  const tabs = state.role==='admin'
+    ? [['dashboard','Inicio'],['reportes','Reportes e historial'],['documentos','Documentos'],['tareas','Tareas de mantención']]
+    : [['dashboard','Inicio']];
+  return `<div class="nav">${tabs.map(([k,l])=>`<button class="${state.view===k?'active':''}" onclick="goView('${k}')">${l}</button>`).join('')}</div>`;
+}
+function goView(v){ state.view=v; state.bellOpen=false; render(); }
+
+function renderFooter(){
+  return `<div class="footer-note">Demo MVP · Los datos de este condominio se guardan en un espacio compartido para inspectores y administradores. <span class="link-reset" onclick="resetDemo()">Reiniciar demo</span></div>`;
+}
+async function resetDemo(){
+  if(!confirm('Esto borrará el condominio, checklists, reportes, documentos y tareas de esta demo. ¿Continuar?')) return;
+  await sDel('condominio'); await sDel('tareas');
+  for(const k of await sList('chk:')) await sDel(k);
+  for(const k of await sList('rep:')) await sDel(k);
+  for(const d of DOC_TYPES) await sDel('doc:'+d.key);
+  state.condo=null; state.checklists=[]; state.reports=[]; state.tareas=[]; state.docs={};
+  render();
+}
+
+/* ============================ VIEW ROUTER ============================ */
+function renderView(){
+  if(state.view==='dashboard') return renderDashboard();
+  if(state.view==='checklist') return renderChecklist();
+  if(state.view==='reportes') return renderReportesHistorial();
+  if(state.view==='documentos') return renderDocumentos();
+  if(state.view==='tareas') return renderTareas();
+  return '';
+}
+
+/* ============================ DASHBOARD ============================ */
+function renderDashboard(){
+  let cards = '';
+  for(let p=1;p<=state.condo.pisos;p++){
+    const registros = state.checklists.filter(c=>c.piso===p);
+    const last = registros[0];
+    const now = new Date();
+    let pill='status-pend', label='Pendiente este mes';
+    if(last){
+      const dias = daysBetween(new Date(last.fecha), now);
+      if(dias<=31){ if(last.estado==='ok'){ pill='status-ok'; label='Vigente'; } else { pill='status-obs'; label='Con observación'; } }
+    }
+    const pendingReport = state.reports.some(r=>r.piso===p && r.estado==='Pendiente');
+    cards += `
+    <div class="floor-card" onclick="abrirChecklist(${p})">
+      ${pendingReport?'<div class="report-dot" title="Reporte pendiente"></div>':''}
+      <div class="floor-tag">Piso ${p}</div>
+      <div class="floor-body">
+        <div class="floor-meta">${last? 'Última: '+fmtDate(new Date(last.fecha)) : 'Sin registros aún'}</div>
+        <span class="status-pill ${pill}">${label}</span>
+      </div>
+    </div>`;
+  }
+  return `
+  <h2>Inspección mensual · Extintores</h2>
+  <p style="color:var(--muted);margin-top:6px;">Selecciona un piso para completar el checklist NFPA 10 y respaldarlo con una foto con fecha y hora.</p>
+  <div class="grid-floors">${cards}</div>`;
+}
+
+function abrirChecklist(piso){
+  state.currentFloor = piso;
+  draftItems = NFPA_ITEMS.map(it=>({id:it.id, cumple:null, obs:''}));
+  draftFoto = null;
+  state.view='checklist';
+  render();
+}
+
+/* ============================ CHECKLIST ============================ */
+function renderChecklist(){
+  const p = state.currentFloor;
+  const itemsHtml = NFPA_ITEMS.map(it=>{
+    const d = draftItems.find(x=>x.id===it.id);
+    return `
+    <div class="check-item">
+      <h4>${it.id}. ${it.nombre}</h4>
+      <p>${it.desc}</p>
+      <div class="radio-row">
+        <div class="radio-opt ${d.cumple===true?'sel-ok':''}" onclick="setItem(${it.id},true)">✓ Cumple</div>
+        <div class="radio-opt ${d.cumple===false?'sel-bad':''}" onclick="setItem(${it.id},false)">✕ No cumple</div>
+      </div>
+      <input type="text" placeholder="Observación (opcional)" value="${esc(d.obs)}" oninput="setItemObs(${it.id}, this.value)">
+    </div>`;
+  }).join('');
+
+  const fotoHtml = draftFoto
+    ? `<img class="photo-preview" src="${draftFoto}"><button class="btn btn-outline btn-sm" onclick="document.getElementById('foto-input').click()">Volver a tomar foto</button>`
+    : `<div class="photo-box">
+        <div style="font-size:24px;">📷</div>
+        <p style="margin:8px 0 12px;">Adjunta una foto de respaldo. Se marcará automáticamente con fecha y hora.</p>
+        <button class="btn btn-navy btn-sm" onclick="document.getElementById('foto-input').click()">Tomar / subir foto</button>
+      </div>`;
+
+  return `
+  <button class="btn btn-ghost btn-sm" style="margin-bottom:12px;" onclick="goView('dashboard')">← Volver al resumen</button>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div class="floor-tag">Piso ${p}</div>
+      <button class="btn btn-outline btn-sm" onclick="abrirReporte(${p})">⚠ Reportar problema en este piso</button>
+    </div>
+    <h3 style="margin-top:16px;">Checklist mensual — Extintores (NFPA 10)</h3>
+    <div style="margin-top:14px;">${itemsHtml}</div>
+    <div class="field" style="margin-top:6px;">
+      <label>Observaciones generales del piso</label>
+      <textarea id="obs-generales" placeholder="Notas adicionales sobre este piso..."></textarea>
+    </div>
+    <div class="field">
+      <label>Respaldo fotográfico</label>
+      ${fotoHtml}
+      <input type="file" id="foto-input" accept="image/*" capture="environment" style="display:none" onchange="onFotoSelected(event)">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px;" onclick="guardarChecklist()">Guardar inspección de este piso</button>
+  </div>`;
+}
+
+function setItem(id,val){ const d=draftItems.find(x=>x.id===id); d.cumple=val; render(); }
+function setItemObs(id,val){ const d=draftItems.find(x=>x.id===id); d.obs=val; }
+
+function onFotoSelected(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      let w = img.width, h = img.height;
+      const maxW = 1000;
+      if(w>maxW){ h = Math.round(h*maxW/w); w = maxW; }
+      const canvas = document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      const now = new Date();
+      drawTimestamp(ctx, canvas, state.condo.nombre, state.currentFloor, fmtDateTime(now));
+      draftFoto = canvas.toDataURL('image/jpeg',0.72);
+      render();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function drawTimestamp(ctx, canvas, condoName, piso, dateStr){
+  const barH = Math.max(46, canvas.height*0.09);
+  ctx.fillStyle='rgba(16,24,40,0.72)';
+  ctx.fillRect(0, canvas.height-barH, canvas.width, barH);
+  ctx.fillStyle='#d81f2a';
+  ctx.fillRect(0, canvas.height-barH, 6, barH);
+  const fs = Math.max(13, canvas.width*0.028);
+  ctx.fillStyle='#fff';
+  ctx.font = `600 ${fs}px Inter, sans-serif`;
+  ctx.textBaseline='middle';
+  ctx.fillText(`${condoName} · Piso ${piso}`, 16, canvas.height-barH*0.62);
+  ctx.font = `500 ${fs*0.82}px Inter, sans-serif`;
+  ctx.fillStyle='#f6c6c9';
+  ctx.fillText(dateStr, 16, canvas.height-barH*0.28);
+}
+
+async function guardarChecklist(){
+  if(draftItems.some(d=>d.cumple===null)){ alert('Responde Cumple / No cumple en todos los puntos.'); return; }
+  if(!draftFoto){ alert('Adjunta una foto de respaldo antes de guardar.'); return; }
+  const now = new Date();
+  const id = 'p'+state.currentFloor+'-'+now.getTime();
+  const estado = draftItems.every(d=>d.cumple) ? 'ok' : 'observacion';
+  const record = {
+    id, piso: state.currentFloor, condo: state.condo.nombre,
+    inspector: state.inspectorName || 'Inspector',
+    fecha: now.toISOString(),
+    items: draftItems.map(d=>{ const meta = NFPA_ITEMS.find(i=>i.id===d.id); return {id:d.id, nombre:meta.nombre, cumple:d.cumple, obs:d.obs}; }),
+    observacionesGenerales: document.getElementById('obs-generales').value.trim(),
+    foto: draftFoto,
+    estado,
+  };
+  await sSet('chk:'+id, record);
+  await refreshChecklists();
+  showToast('Inspección registrada ✓ '+fmtDateTime(now));
+  goView('dashboard');
+}
+
+/* ---------- Reportar problema ---------- */
+function abrirReporte(piso){
+  const bg = document.createElement('div');
+  bg.className='modal-bg'; bg.id='report-modal';
+  bg.innerHTML = `
+    <div class="modal">
+      <h3>Reportar problema — Piso ${piso}</h3>
+      <p style="color:var(--muted);margin:6px 0 16px;">Este reporte llegará directamente a los administradores del condominio.</p>
+      <div class="field"><label>Severidad</label>
+        <select id="rep-sev"><option>Baja</option><option selected>Media</option><option>Alta</option></select>
+      </div>
+      <div class="field"><label>Descripción del problema</label>
+        <textarea id="rep-desc" placeholder="Ej: Extintor con presión baja, requiere recarga urgente..."></textarea>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="enviarReporte(${piso})">Enviar a administración</button>
+      </div>
+    </div>`;
+  document.body.appendChild(bg);
+}
+function cerrarModal(){ const m=document.getElementById('report-modal'); if(m) m.remove(); }
+async function enviarReporte(piso){
+  const desc = document.getElementById('rep-desc').value.trim();
+  if(!desc){ alert('Describe brevemente el problema.'); return; }
+  const sev = document.getElementById('rep-sev').value;
+  const now = new Date();
+  const id = 'p'+piso+'-'+now.getTime();
+  const rec = { id, piso, fecha: now.toISOString(), inspector: state.inspectorName||'Inspector', severidad: sev, descripcion: desc, estado:'Pendiente' };
+  await sSet('rep:'+id, rec);
+  await refreshReports();
+  cerrarModal();
+  showToast('Reporte enviado a los administradores');
+  render();
+}
+
+/* ============================ REPORTES + HISTORIAL (admin) ============================ */
+function renderReportesHistorial(){
+  return `
+  <div class="tab-row">
+    <button class="subtab ${state.historySub==='reportes'?'active':''}" onclick="setHistSub('reportes')">Reportes de piso</button>
+    <button class="subtab ${state.historySub==='historial'?'active':''}" onclick="setHistSub('historial')">Historial de checklists</button>
+  </div>
+  <div class="card">${state.historySub==='reportes' ? renderTablaReportes() : renderTablaHistorial()}</div>`;
+}
+function setHistSub(s){ state.historySub=s; render(); }
+
+function renderTablaReportes(){
+  if(state.reports.length===0) return '<div class="empty">Aún no se han enviado reportes.</div>';
+  const chip = e => e==='Pendiente' ? 'chip-pend' : 'chip-done';
+  const sevChip = s => s==='Alta' ? 'chip-pend' : s==='Media' ? 'chip-obs' : 'chip-done';
+  return `<table><thead><tr><th>Piso</th><th>Fecha</th><th>Severidad</th><th>Descripción</th><th>Estado</th><th></th></tr></thead><tbody>
+  ${state.reports.map(r=>`
+    <tr>
+      <td><b>Piso ${r.piso}</b></td>
+      <td>${fmtDateTime(new Date(r.fecha))}</td>
+      <td><span class="chip ${sevChip(r.severidad)}">${r.severidad}</span></td>
+      <td style="max-width:260px;">${esc(r.descripcion)}</td>
+      <td><span class="chip ${chip(r.estado)}">${r.estado}</span></td>
+      <td>${r.estado==='Pendiente' ? `<button class="btn btn-outline btn-sm" onclick="resolverReporte('${r.id}')">Marcar resuelto</button>` : ''}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+async function resolverReporte(id){
+  const rec = await sGet('rep:'+id);
+  if(!rec) return;
+  rec.estado='Resuelto';
+  await sSet('rep:'+id, rec);
+  await refreshReports();
+  render();
+}
+
+function renderTablaHistorial(){
+  if(state.checklists.length===0) return '<div class="empty">Aún no hay checklists registrados.</div>';
+  return `<table><thead><tr><th>Piso</th><th>Fecha y hora</th><th>Inspector</th><th>Resultado</th><th>Foto</th></tr></thead><tbody>
+  ${state.checklists.map(c=>`
+    <tr>
+      <td><b>Piso ${c.piso}</b></td>
+      <td>${fmtDateTime(new Date(c.fecha))}</td>
+      <td>${esc(c.inspector)}</td>
+      <td><span class="chip ${c.estado==='ok'?'chip-ok':'chip-obs'}">${c.estado==='ok'?'Cumple':'Con observación'}</span></td>
+      <td><img class="thumb" src="${c.foto}" onclick="verFoto('${c.id}')"></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+function verFoto(id){
+  const rec = state.checklists.find(c=>c.id===id);
+  if(!rec) return;
+  const bg = document.createElement('div');
+  bg.className='modal-bg'; bg.onclick=()=>bg.remove();
+  bg.innerHTML = `<div class="modal" style="max-width:520px;" onclick="event.stopPropagation()">
+    <div class="floor-tag" style="margin-left:0;">Piso ${rec.piso}</div>
+    <img src="${rec.foto}" style="width:100%;border-radius:10px;margin:14px 0;">
+    <p style="color:var(--muted);">${fmtDateTime(new Date(rec.fecha))} · Inspector: ${esc(rec.inspector)}</p>
+    ${rec.observacionesGenerales ? `<p><b>Observaciones:</b> ${esc(rec.observacionesGenerales)}</p>` : ''}
+    <button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:10px;" onclick="this.closest('.modal-bg').remove()">Cerrar</button>
+  </div>`;
+  document.body.appendChild(bg);
+}
+
+/* ============================ DOCUMENTOS ============================ */
+function renderDocumentos(){
+  return `
+  <h2>Documentos del condominio</h2>
+  <p style="color:var(--muted);margin:6px 0 18px;">Sube y reemplaza el Plan de Emergencia, y los registros de Capacitación y Simulacros. Quedan disponibles para todo el equipo.</p>
+  ${DOC_TYPES.map(d=>{
+    const doc = state.docs[d.key];
+    return `<div class="doc-card">
+      <div>
+        <h4>${d.nombre}</h4>
+        <div class="d">${doc ? 'Archivo: '+esc(doc.nombre)+' · Subido el '+fmtDateTime(new Date(doc.fecha)) : 'Sin documento cargado'}</div>
+      </div>
+      <div>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('doc-input-${d.key}').click()">${doc?'Reemplazar PDF':'Subir PDF'}</button>
+        <input type="file" id="doc-input-${d.key}" accept="application/pdf" style="display:none" onchange="onDocSelected(event,'${d.key}')">
+      </div>
+    </div>`;
+  }).join('')}`;
+}
+function onDocSelected(e, key){
+  const file = e.target.files[0];
+  if(!file) return;
+  if(file.size > 4.5*1024*1024){ alert('El PDF supera el tamaño permitido para esta demo (4.5 MB). Usa un archivo más liviano.'); return; }
+  const reader = new FileReader();
+  reader.onload = async function(ev){
+    const rec = { nombre:file.name, fecha: new Date().toISOString(), data: ev.target.result };
+    const ok = await sSet('doc:'+key, rec);
+    if(!ok){ alert('No se pudo guardar el documento.'); return; }
+    state.docs[key] = rec;
+    showToast('Documento cargado');
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ============================ TAREAS ============================ */
+function renderTareas(){
+  const today = new Date();
+  const rows = state.tareas.map(t=>{
+    const next = addDays(new Date(t.ultimaFecha), t.intervaloDias);
+    const dias = daysBetween(today,next);
+    const chipClass = dias<0 ? 'chip-pend' : dias<=7 ? 'chip-obs' : 'chip-done';
+    const label = dias<0 ? (Math.abs(dias)+' días vencida') : dias===0 ? 'Vence hoy' : ('Vence en '+dias+' días');
+    return `<div class="task-row">
+      <div><b>${esc(t.nombre)}</b><div class="d" style="color:var(--muted);font-size:12px;margin-top:3px;">Cada ${t.intervaloDias} días · Última vez: ${fmtDate(new Date(t.ultimaFecha))}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="chip ${chipClass}">${label}</span>
+        <button class="btn btn-outline btn-sm" onclick="marcarTareaHecha('${t.id}')">Marcar realizada hoy</button>
+      </div>
+    </div>`;
+  }).join('');
+  return `
+  <h2>Tareas de mantención del edificio</h2>
+  <p style="color:var(--muted);margin:6px 0 18px;">Estas tareas alimentan la alerta de la campanita con una semana de antelación.</p>
+  ${rows}
+  <div class="card" style="margin-top:18px;">
+    <h4 style="margin-bottom:12px;">Agregar nueva tarea</h4>
+    <div class="field"><label>Nombre</label><input type="text" id="nt-nombre" placeholder="Ej: Revisión de luces de emergencia"></div>
+    <div class="field"><label>Frecuencia (días)</label><input type="number" id="nt-dias" placeholder="Ej: 90"></div>
+    <button class="btn btn-navy" onclick="agregarTarea()">Agregar tarea</button>
+  </div>`;
+}
+async function marcarTareaHecha(id){
+  const t = state.tareas.find(x=>x.id===id);
+  if(!t) return;
+  t.ultimaFecha = new Date().toISOString();
+  await sSet('tareas', state.tareas);
+  showToast('Tarea actualizada');
+  render();
+}
+async function agregarTarea(){
+  const nombre = document.getElementById('nt-nombre').value.trim();
+  const dias = parseInt(document.getElementById('nt-dias').value,10);
+  if(!nombre || !dias){ alert('Completa nombre y frecuencia.'); return; }
+  state.tareas.push({ id:'t'+Date.now(), nombre, intervaloDias:dias, ultimaFecha: new Date().toISOString() });
+  await sSet('tareas', state.tareas);
+  render();
+}
+
+/* ============================ TOAST ============================ */
+function showToast(msg){
+  const t = document.createElement('div');
+  t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2600);
+}
+
+/* click outside closes bell */
+document.addEventListener('click', function(e){
+  if(state.bellOpen && !e.target.closest('.bell-wrap')){ state.bellOpen=false; render(); }
+});
+
+boot();
+</script>
+</body>
+</html>
