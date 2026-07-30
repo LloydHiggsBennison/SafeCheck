@@ -425,8 +425,13 @@ function renderDashboard(){
     </div>`;
   }
   return `
-  <h2>Inspección mensual · Extintores</h2>
-  <p style="color:var(--muted);margin-top:6px;">Selecciona un piso para completar el checklist NFPA 10 y respaldarlo con una foto con fecha y hora.</p>
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+    <div>
+      <h2 style="font-size:22px;">Inspección mensual · Extintores</h2>
+      <p style="color:var(--muted);margin-top:4px;">Selecciona un piso para completar el checklist NFPA 10 y respaldarlo con una foto con fecha y hora.</p>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="resetDemo()">🔄 Reiniciar todo</button>
+  </div>
   <div class="grid-floors">${cards}</div>`;
 }
 
