@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Safe Flame · Mantención Preventiva</title>
+<title>SafeCheck 360 · Mantención Preventiva</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -262,11 +262,11 @@ function renderRegistro(){
   return `
   <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy);padding:20px;">
     <div class="card" style="max-width:440px;width:100%;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-        <span class="brand-flame">🔥</span>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <img src="logo.jpg" alt="SafeCheck 360" style="height: 48px; object-fit: contain; border-radius: 6px;">
         <div>
-          <div style="font-family:'Oswald';font-weight:700;font-size:19px;color:var(--red-dark);">SAFE FLAME</div>
-          <div style="font-size:10.5px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;">Seguridad contra incendios</div>
+          <div style="font-family:'Oswald';font-weight:700;font-size:22px;color:var(--red-dark);line-height:1.1;">SAFECHECK 360</div>
+          <div style="font-size:10px;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase;font-weight:600;">BY SAFE FLAME</div>
         </div>
       </div>
       <h2 style="margin-top:16px;font-size:20px;">Registra tu condominio</h2>
@@ -294,7 +294,6 @@ async function crearCondominio(){
   // seed default building-wide maintenance tasks so the alert bell has content
   const today = new Date();
   const seed = [
-    {id:'t1', nombre:'Inspección de mangueras contra incendio', intervaloDias:180, ultimaFecha: addDays(today,-174).toISOString()},
     {id:'t2', nombre:'Inspección de señalética de evacuación', intervaloDias:90, ultimaFecha: addDays(today,-85).toISOString()},
     {id:'t3', nombre:'Mantención anual certificada de extintores', intervaloDias:365, ultimaFecha: addDays(today,-360).toISOString()},
     {id:'t4', nombre:'Capacitación de uso de extintores al personal', intervaloDias:365, ultimaFecha: addDays(today,-200).toISOString()},
@@ -338,8 +337,11 @@ function renderTopbar(){
   return `
   <div class="topbar">
     <div class="brand">
-      <span class="brand-flame">🔥</span>
-      <div><div class="brand-name">SAFE FLAME</div><div class="brand-sub">Mantención Preventiva</div></div>
+      <img src="logo.jpg" alt="SafeCheck 360" style="height: 38px; object-fit: contain; border-radius: 4px;">
+      <div>
+        <div class="brand-name" style="line-height:1.2;">SAFECHECK 360</div>
+        <div class="brand-sub">BY SAFE FLAME</div>
+      </div>
     </div>
     <div class="topbar-condo">${esc(state.condo.nombre)} <b>· ${state.condo.pisos} pisos</b></div>
     <div class="topbar-right">
@@ -450,8 +452,6 @@ function renderChecklist(){
   const last = registros[0];
   const lastNroExtintor = last ? (last.nroExtintor || '') : '';
   const lastUbicExtintor = last ? (last.ubicacionExtintor || '') : '';
-  const lastNroManguera = last ? (last.nroManguera || '') : '';
-  const lastUbicManguera = last ? (last.ubicacionManguera || '') : '';
 
   const itemsHtml = NFPA_ITEMS.map(it=>{
     const d = draftItems.find(x=>x.id===it.id);
@@ -483,7 +483,7 @@ function renderChecklist(){
       <button class="btn btn-outline btn-sm" onclick="abrirReporte(${p})">⚠ Reportar problema en este piso</button>
     </div>
     
-    <h3 style="margin-top:16px;">Identificación del Equipamiento</h3>
+    <h3 style="margin-top:16px;">Identificación del Extintor</h3>
     <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin: 12px 0 18px 0; background: #fafafa; border: 1px solid var(--border); padding: 14px; border-radius: 12px;">
       <div class="field" style="margin-bottom:0;">
         <label>Número de Extintor</label>
@@ -492,14 +492,6 @@ function renderChecklist(){
       <div class="field" style="margin-bottom:0;">
         <label>Ubicación del Extintor</label>
         <input type="text" id="ubic-extintor" placeholder="Ej: Junto a ascensor" value="${esc(lastUbicExtintor)}">
-      </div>
-      <div class="field" style="margin-bottom:0;">
-        <label>Número de Manguera</label>
-        <input type="text" id="nro-manguera" placeholder="Ej: MANG-P${p}-01" value="${esc(lastNroManguera)}">
-      </div>
-      <div class="field" style="margin-bottom:0;">
-        <label>Ubicación de la Manguera</label>
-        <input type="text" id="ubic-manguera" placeholder="Ej: Gabinete contra incendios" value="${esc(lastUbicManguera)}">
       </div>
     </div>
 
@@ -566,8 +558,6 @@ async function guardarChecklist(){
   if(!draftFoto){ alert('Adjunta una foto de respaldo antes de guardar.'); return; }
   const nroExtintor = document.getElementById('nro-extintor').value.trim();
   const ubicacionExtintor = document.getElementById('ubic-extintor').value.trim();
-  const nroManguera = document.getElementById('nro-manguera').value.trim();
-  const ubicacionManguera = document.getElementById('ubic-manguera').value.trim();
   const now = new Date();
   const id = 'p'+state.currentFloor+'-'+now.getTime();
   const estado = draftItems.every(d=>d.cumple) ? 'ok' : 'observacion';
@@ -578,8 +568,6 @@ async function guardarChecklist(){
     items: draftItems.map(d=>{ const meta = NFPA_ITEMS.find(i=>i.id===d.id); return {id:d.id, nombre:meta.nombre, cumple:d.cumple, obs:d.obs}; }),
     nroExtintor,
     ubicacionExtintor,
-    nroManguera,
-    ubicacionManguera,
     observacionesGenerales: document.getElementById('obs-generales').value.trim(),
     foto: draftFoto,
     estado,
@@ -669,8 +657,8 @@ function renderTablaHistorial(){
     <tr>
       <td>
         <b>Piso ${c.piso}</b>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;" title="Extintor / Manguera">
-          Ext: ${esc(c.nroExtintor || 'N/A')} · Mang: ${esc(c.nroManguera || 'N/A')}
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;" title="Extintor">
+          Ext: ${esc(c.nroExtintor || 'N/A')}
         </div>
       </td>
       <td>${fmtDateTime(new Date(c.fecha))}</td>
@@ -690,13 +678,9 @@ function verFoto(id){
     <img src="${rec.foto}" style="width:100%;border-radius:10px;margin:14px 0;">
     
     <div style="background:var(--bg); padding:12px; border-radius:10px; margin-bottom:12px; font-size:12.5px; border: 1px solid var(--border);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:6px; border-bottom: 1px solid var(--border); padding-bottom:6px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
         <span><b>Extintor:</b> ${esc(rec.nroExtintor || 'No especificado')}</span>
         <span style="color:var(--muted); font-size:11.5px;">${esc(rec.ubicacionExtintor || 'Sin ubicación')}</span>
-      </div>
-      <div style="display:flex; justify-content:space-between;">
-        <span><b>Manguera:</b> ${esc(rec.nroManguera || 'No especificada')}</span>
-        <span style="color:var(--muted); font-size:11.5px;">${esc(rec.ubicacionManguera || 'Sin ubicación')}</span>
       </div>
     </div>
 
